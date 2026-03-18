@@ -205,18 +205,9 @@
 
     <script>
         const CONFIG = {
-            // 不燃・有害ごみの日程（木曜日）
-            nonBurnableDates: [
-                "2025-04-10", "2025-06-12", "2025-08-14", "2025-10-09", "2025-12-11",
-                "2026-02-12", "2026-08-13", "2026-10-08", "2026-12-10",
-                "2027-02-11"
-            ],
-            // 資源ごみの日程（木曜日）
-            resourceDates: [
-                "2025-04-24", "2025-05-22", "2025-06-26", "2025-07-24", "2025-08-28", "2025-09-25", "2025-10-23", "2025-11-27", "2025-12-25",
-                "2026-01-22", "2026-02-26", "2026-03-26", "2026-04-23", "2026-05-28", "2026-06-25", "2026-07-23", "2026-08-27", "2026-09-24", "2026-10-22", "2026-11-26", "2026-12-24",
-                "2027-01-28", "2027-02-25", "2027-03-25"
-            ],
+            // 木曜日の特定収集日はすべて削除されました（有害ごみ窓口化のため）
+            nonBurnableDates: [],
+            resourceDates: [],
             // 年末年始および臨時ルール
             specialRules: {
                 "2025-12-29": "可燃ごみ", "2025-12-30": "可燃ごみ", "2026-01-04": "臨時収集",
@@ -225,22 +216,22 @@
         };
 
         const DICTIONARY = [
-            { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "そのまま袋へ。" },
+            { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "第1火曜日に出してください。" },
             { name: "乾電池", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "役場窓口へ直接お持ちください。" },
-            { name: "ペットボトル", type: "resource", label: "資源ごみ", bag: "袋なし", note: "キャップとラベルを外して洗浄。" },
-            { name: "トレイ・パック", type: "plastic", label: "プラ容器", bag: "黄色い袋", note: "きれいに洗って乾燥させて。" },
-            { name: "新聞紙・チラシ", type: "resource", label: "資源ごみ", bag: "紐で十字に", note: "資源の日の朝に。" },
+            { name: "ペットボトル", type: "non-burnable", label: "不燃ごみ", bag: "袋なし", note: "出し方は住民課へご確認ください。" },
+            { name: "トレイ・パック", type: "plastic", label: "プラ容器", bag: "黄色い袋", note: "きれいに洗って乾燥させて。第2・4水曜日。" },
+            { name: "新聞紙・チラシ", type: "non-burnable", label: "不燃ごみ", bag: "紐で十字に", note: "出し方は住民課へご確認ください。" },
             { name: "スプレー缶", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "中身を出し切って役場窓口へ。" },
             { name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "十分に水を切ってください。" },
             { name: "ライター", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "ガスを使い切って役場窓口へ。" },
             { name: "蛍光管・電球", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "箱等に入れて役場窓口へ。" },
             { name: "小型家電", type: "non-burnable", label: "不燃ごみ", note: "30cm角を超えるものは粗大ごみへ。" },
             { name: "プラスチック製バケツ", type: "non-burnable", label: "不燃ごみ", note: "容器包装ではないプラ製品。" },
-            { name: "空き缶", type: "resource", label: "資源ごみ", note: "中を洗って潰さずに出す。" },
-            { name: "空きビン", type: "resource", label: "資源ごみ", note: "透明、茶、その他の色に分ける。" },
+            { name: "空き缶", type: "non-burnable", label: "不燃ごみ", note: "出し方は住民課へご確認ください。" },
+            { name: "空きビン", type: "non-burnable", label: "不燃ごみ", note: "出し方は住民課へご確認ください。" },
             { name: "鍋・やかん", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "第1火曜日の不燃ごみ(金属等)の日へ。" },
             { name: "フライパン", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "第1火曜日の不燃ごみ(金属等)の日へ。" },
-            { name: "コップ・皿(ガラス)", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "割れたものは紙に包んで「キケン」と表記。" }
+            { name: "コップ・皿(ガラス)", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "割れたものは紙に包んで「キケン」と表記。第1火曜日。" }
         ];
 
         const REAL_TODAY = new Date();
@@ -279,20 +270,14 @@
             if (CONFIG.specialRules[dateStr]) return [{ label: CONFIG.specialRules[dateStr], type: "burnable" }];
             
             let results = [];
-            // 可燃ごみ: 火・金
+            // 可燃ごみ: 毎週 火曜日・金曜日
             if (day === 2 || day === 5) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" });
             
-            // 不燃ごみ(金属等): 第1火曜日
+            // 不燃ごみ(金属等): 毎月 第1火曜日
             if (day === 2 && nth === 1) results.push({ label: "不燃(金等)", type: "non-burnable", bag: "透明袋" });
             
-            // プラ容器: 第2・4水曜日
+            // プラ容器: 毎週 第2・4水曜日
             if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ容器", type: "plastic", bag: "黄色袋" });
-            
-            // 不燃・有害: 特定日
-            if (CONFIG.nonBurnableDates.includes(dateStr)) results.push({ label: "不燃・有害", type: "non-burnable", bag: "透明袋" });
-            
-            // 資源ごみ: 特定日
-            if (CONFIG.resourceDates.includes(dateStr)) results.push({ label: "資源ごみ", type: "resource", bag: "コンテナ等" });
             
             return results.length > 0 ? results : [{ label: "収集なし", type: "none" }];
         }
