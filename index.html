@@ -149,7 +149,7 @@
     <header class="app-header pt-4 text-white text-center">
         <div class="flex justify-between items-center mb-4 px-6">
             <div class="w-8"></div>
-            <h1 class="text-xl font-black tracking-widest">南相木村ごみナビ</h1>
+            <h1 class="text-xl font-black tracking-widest text-white">南相木村ごみナビ</h1>
             <button onclick="resetToToday()" class="p-2 opacity-80 active:opacity-100">
                 <i class="fas fa-home text-lg"></i>
             </button>
@@ -173,8 +173,12 @@
 
     <main class="mt-6">
         
-        <!-- Search Bar (最上部) -->
+        <!-- Search Bar Section -->
         <section class="px-5 mb-8">
+            <!-- 案内テキスト -->
+            <p class="text-[11px] font-bold text-gray-500 mb-2 leading-relaxed text-center px-2">
+                分別で分からない場合は、下記で検索し、<br class="sm:hidden">それでも不明な場合は住民課へお問い合わせください。
+            </p>
             <div class="search-container flex items-center px-4 py-1 shadow-sm">
                 <i class="fas fa-search text-gray-300 ml-1 text-xl"></i>
                 <input type="text" id="search-input" placeholder="なにを捨てたいですか？" 
@@ -286,7 +290,10 @@
 
         function initApp() {
             const todayStr = `${REAL_TODAY.getFullYear()}-${String(REAL_TODAY.getMonth()+1).padStart(2,'0')}-${String(REAL_TODAY.getDate()).padStart(2,'0')}`;
-            document.getElementById('today-display').innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`;
+            const displayDate = document.getElementById('today-display');
+            if (displayDate) {
+              displayDate.innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`;
+            }
             renderToday(getGarbageTypes(todayStr));
 
             monthSlider.innerHTML = '';
@@ -344,6 +351,7 @@
 
         function renderToday(types) {
             const container = document.getElementById('today-content');
+            if (!container) return;
             container.innerHTML = '';
             types.forEach(t => {
                 const div = document.createElement('div');
@@ -389,29 +397,31 @@
 
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            if (val.length === 0) { searchResults.classList.add('hidden'); return; }
-            const filtered = DICTIONARY.filter(i => i.name.includes(val) || i.label.includes(val));
-            searchResults.classList.remove('hidden');
-            searchResults.innerHTML = filtered.map(i => `
-                <div class="main-card p-4 flex items-center gap-4">
-                    <div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">
-                        ${getIcons(i.type).replace('text-lg','')}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-black text-lg">${i.name}</h3>
-                            <span class="text-[10px] font-black bg-${i.type} px-2 py-0.5 rounded text-white">${i.label}</span>
-                        </div>
-                        ${i.bag ? `<div class="mt-1 flex items-center text-xs font-bold text-gray-400">
-                            <span class="bag-indicator" style="background:${getBagColor(i.type)}"></span>${i.bag}
-                        </div>` : ''}
-                        <p class="text-[10px] text-gray-500 mt-1">${i.note || ''}</p>
-                    </div>
-                </div>
-            `).join('') || '<div class="text-center py-10 opacity-30 font-black">見つかりませんでした</div>';
-        });
+        if (searchInput && searchResults) {
+          searchInput.addEventListener('input', (e) => {
+              const val = e.target.value.trim();
+              if (val.length === 0) { searchResults.classList.add('hidden'); return; }
+              const filtered = DICTIONARY.filter(i => i.name.includes(val) || i.label.includes(val));
+              searchResults.classList.remove('hidden');
+              searchResults.innerHTML = filtered.map(i => `
+                  <div class="main-card p-4 flex items-center gap-4">
+                      <div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">
+                          ${getIcons(i.type).replace('text-lg','')}
+                      </div>
+                      <div class="flex-1">
+                          <div class="flex justify-between items-start">
+                              <h3 class="font-black text-lg">${i.name}</h3>
+                              <span class="text-[10px] font-black bg-${i.type} px-2 py-0.5 rounded text-white">${i.label}</span>
+                          </div>
+                          ${i.bag ? `<div class="mt-1 flex items-center text-xs font-bold text-gray-400">
+                              <span class="bag-indicator" style="background:${getBagColor(i.type)}"></span>${i.bag}
+                          </div>` : ''}
+                          <p class="text-[10px] text-gray-500 mt-1">${i.note || ''}</p>
+                      </div>
+                  </div>
+              `).join('') || '<div class="text-center py-10 opacity-30 font-black">見つかりませんでした</div>';
+          });
+        }
 
         window.onload = initApp;
         window.onresize = () => scrollToMonth(Math.round(monthSlider.scrollLeft / monthSlider.clientWidth));
