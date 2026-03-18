@@ -10,10 +10,12 @@
         :root {
             --primary-green: #2d5a27;
             --burnable: #ff6b6b;
-            --plastic: #ffd93d;
             --non-burnable: #4d96ff;
-            --resource: #6bc11f;
+            --plastic: #ffd93d;
+            --koshi: #6bc11f;
+            --can-bin: #fd9644;
             --hazardous: #a555ec;
+            --sodai: #4b6584;
         }
         body {
             background-color: #f7fbf2;
@@ -89,13 +91,12 @@
             scrollbar-width: none;
         }
         .type-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            margin-bottom: 4px;
         }
         .bag-indicator {
             width: 12px;
@@ -106,11 +107,14 @@
             border: 1px solid rgba(0,0,0,0.1);
         }
         .bg-burnable { background-color: var(--burnable); }
-        .bg-plastic { background-color: var(--plastic); color: #444; }
         .bg-non-burnable { background-color: var(--non-burnable); }
-        .bg-resource { background-color: var(--resource); }
+        .bg-plastic { background-color: var(--plastic); color: #444; }
+        .bg-koshi { background-color: var(--koshi); }
+        .bg-can-bin { background-color: var(--can-bin); }
         .bg-hazardous { background-color: var(--hazardous); }
+        .bg-sodai { background-color: var(--sodai); }
         .bg-none { background-color: #f1f5f9; color: #cbd5e1; }
+        
         .search-container {
             background: white;
             border-radius: 20px;
@@ -160,7 +164,7 @@
             </div>
             <div class="flex-1 flex items-center justify-center bg-white/10 rounded-2xl py-2">
                 <i class="fas fa-truck text-blue-300 mr-1.5 text-[10px]"></i>
-                <span class="text-[10px] font-bold">粗大ごみ: 年2回予定</span>
+                <span class="text-[10px] font-bold">粗大ごみ: 5/9など</span>
             </div>
         </div>
     </header>
@@ -205,33 +209,34 @@
 
     <script>
         const CONFIG = {
-            // 木曜日の特定収集日はすべて削除されました（有害ごみ窓口化のため）
-            nonBurnableDates: [],
-            resourceDates: [],
-            // 年末年始および臨時ルール
+            // 特別なルール（年末年始や特定日イベント）
             specialRules: {
-                "2025-12-29": "可燃ごみ", "2025-12-30": "可燃ごみ", "2026-01-04": "臨時収集",
-                "2026-12-29": "可燃ごみ", "2026-12-30": "可燃ごみ", "2027-01-04": "臨時収集"
+                "2026-05-09": { label: "粗大ごみ", type: "sodai" }, // 2026年5月9日 粗大ごみ
+                "2025-12-29": { label: "可燃ごみ", type: "burnable" },
+                "2025-12-30": { label: "可燃ごみ", type: "burnable" },
+                "2026-01-04": { label: "臨時収集", type: "burnable" },
+                "2026-12-29": { label: "可燃ごみ", type: "burnable" },
+                "2026-12-30": { label: "可燃ごみ", type: "burnable" },
+                "2027-01-04": { label: "臨時収集", type: "burnable" }
             }
         };
 
         const DICTIONARY = [
-            { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "第1火曜日に出してください。" },
+            { name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "毎週月曜日。十分に水を切ってください。" },
+            { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "第1火曜日。そのまま袋へ。" },
             { name: "乾電池", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "役場窓口へ直接お持ちください。" },
-            { name: "ペットボトル", type: "non-burnable", label: "不燃ごみ", bag: "袋なし", note: "出し方は住民課へご確認ください。" },
-            { name: "トレイ・パック", type: "plastic", label: "プラ容器", bag: "黄色い袋", note: "きれいに洗って乾燥させて。第2・4水曜日。" },
-            { name: "新聞紙・チラシ", type: "non-burnable", label: "不燃ごみ", bag: "紐で十字に", note: "出し方は住民課へご確認ください。" },
+            { name: "プラスチック製容器包装", type: "plastic", label: "プラスチック類", bag: "黄色い袋", note: "第2・4水曜日。きれいに洗って乾燥させて。" },
+            { name: "トレイ・パック", type: "plastic", label: "プラスチック類", bag: "黄色い袋", note: "第2・4水曜日。" },
+            { name: "新聞紙・チラシ", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "雑誌・本", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "ダンボール", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "飲料缶", type: "can-bin", label: "缶・びん", bag: "袋なし", note: "第3水曜日。中を洗って出してください。" },
+            { name: "空きびん", type: "can-bin", label: "缶・びん", bag: "袋なし", note: "第3水曜日。色別に分けて出してください。" },
             { name: "スプレー缶", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "中身を出し切って役場窓口へ。" },
-            { name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "十分に水を切ってください。" },
             { name: "ライター", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "ガスを使い切って役場窓口へ。" },
             { name: "蛍光管・電球", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "箱等に入れて役場窓口へ。" },
-            { name: "小型家電", type: "non-burnable", label: "不燃ごみ", note: "30cm角を超えるものは粗大ごみへ。" },
-            { name: "プラスチック製バケツ", type: "non-burnable", label: "不燃ごみ", note: "容器包装ではないプラ製品。" },
-            { name: "空き缶", type: "non-burnable", label: "不燃ごみ", note: "出し方は住民課へご確認ください。" },
-            { name: "空きビン", type: "non-burnable", label: "不燃ごみ", note: "出し方は住民課へご確認ください。" },
-            { name: "鍋・やかん", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "第1火曜日の不燃ごみ(金属等)の日へ。" },
-            { name: "フライパン", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "第1火曜日の不燃ごみ(金属等)の日へ。" },
-            { name: "コップ・皿(ガラス)", type: "non-burnable", label: "不燃ごみ(金属等)", bag: "透明な袋", note: "割れたものは紙に包んで「キケン」と表記。第1火曜日。" }
+            { name: "小型家電", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。30cm角を超えるものは粗大ごみへ。" },
+            { name: "タンス・机", type: "sodai", label: "粗大ごみ", note: "5月9日などの特定日に収集されます。" }
         ];
 
         const REAL_TODAY = new Date();
@@ -241,22 +246,26 @@
 
         function getIcons(type) {
             switch(type) {
-                case 'burnable': return '<i class="fas fa-fire text-lg"></i>';
-                case 'plastic': return '<i class="fas fa-recycle text-lg"></i>';
-                case 'non-burnable': return '<i class="fas fa-dumpster text-lg"></i>';
-                case 'resource': return '<i class="fas fa-wine-bottle text-lg"></i>';
-                case 'hazardous': return '<i class="fas fa-exclamation-triangle text-lg"></i>';
-                default: return '<i class="fas fa-calendar-times text-lg"></i>';
+                case 'burnable': return '<i class="fas fa-fire text-sm"></i>';
+                case 'non-burnable': return '<i class="fas fa-dumpster text-sm"></i>';
+                case 'plastic': return '<i class="fas fa-recycle text-sm"></i>';
+                case 'koshi': return '<i class="fas fa-book text-sm"></i>';
+                case 'can-bin': return '<i class="fas fa-wine-bottle text-sm"></i>';
+                case 'hazardous': return '<i class="fas fa-exclamation-triangle text-sm"></i>';
+                case 'sodai': return '<i class="fas fa-truck text-sm"></i>';
+                default: return '<i class="fas fa-calendar-times text-sm"></i>';
             }
         }
 
         function getBagColor(type) {
             switch(type) {
                 case 'burnable': return '#ff6b6b';
-                case 'plastic': return '#ffd93d';
                 case 'non-burnable': return '#4d96ff';
-                case 'resource': return '#6bc11f';
+                case 'plastic': return '#ffd93d';
+                case 'koshi': return '#6bc11f';
+                case 'can-bin': return '#fd9644';
                 case 'hazardous': return '#a555ec';
+                case 'sodai': return '#4b6584';
                 default: return '#ccc';
             }
         }
@@ -267,17 +276,24 @@
             const d = date.getDate();
             const nth = Math.ceil(d / 7);
             
-            if (CONFIG.specialRules[dateStr]) return [{ label: CONFIG.specialRules[dateStr], type: "burnable" }];
+            // 特別ルールの優先チェック
+            if (CONFIG.specialRules[dateStr]) return [CONFIG.specialRules[dateStr]];
             
             let results = [];
-            // 可燃ごみ: 毎週 火曜日・金曜日
-            if (day === 2 || day === 5) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" });
+            // 可燃ごみ: 毎週 月曜日
+            if (day === 1) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" });
             
-            // 不燃ごみ(金属等): 毎月 第1火曜日
-            if (day === 2 && nth === 1) results.push({ label: "不燃(金等)", type: "non-burnable", bag: "透明袋" });
+            // 不燃ごみ: 第1火曜日
+            if (day === 2 && nth === 1) results.push({ label: "不燃ごみ", type: "non-burnable", bag: "透明袋" });
             
-            // プラ容器: 毎週 第2・4水曜日
-            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ容器", type: "plastic", bag: "黄色袋" });
+            // 古紙類: 第1水曜日
+            if (day === 3 && nth === 1) results.push({ label: "古紙類", type: "koshi", bag: "紐で縛る" });
+
+            // プラスチック類: 第2・4水曜日
+            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic", bag: "黄色袋" });
+            
+            // 缶・びん: 第3水曜日
+            if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin", bag: "袋なし" });
             
             return results.length > 0 ? results : [{ label: "収集なし", type: "none" }];
         }
@@ -315,10 +331,9 @@
                             <div class="space-y-2">
                                 ${types.map(t => `
                                     <div class="flex items-center gap-1">
-                                        <div class="type-icon bg-${t.type} scale-75 m-0 mb-0">${getIcons(t.type)}</div>
+                                        <div class="type-icon bg-${t.type} text-white">${getIcons(t.type)}</div>
                                         <div class="flex flex-col">
                                             <span class="text-[10px] font-black leading-tight">${t.label}</span>
-                                            ${t.bag ? `<span class="text-[8px] opacity-50">${t.bag}</span>` : ''}
                                         </div>
                                     </div>
                                 `).join('')}
@@ -337,15 +352,14 @@
             if (!container) return;
             container.innerHTML = types.map(t => {
                 if (t.type === 'none') return `<i class="fas fa-bed text-4xl text-gray-200 mb-2"></i><span class="text-xl font-black text-gray-300">今日は収集なし</span>`;
-                let displayLabel = t.label === "不燃(金等)" ? "不燃ごみ（金属等）" : t.label;
                 return `
                     <div class="flex flex-col items-center w-full">
                         <div class="w-20 h-20 bg-${t.type} rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-2">
-                            ${getIcons(t.type).replace('text-lg','')}
+                            ${getIcons(t.type).replace('text-sm','text-3xl')}
                         </div>
-                        <span class="text-2xl font-black">${displayLabel}</span>
+                        <span class="text-2xl font-black">${t.label}</span>
                         ${t.bag ? `<div class="mt-2 flex items-center bg-gray-50 px-4 py-1 rounded-full text-sm font-bold text-gray-500 border border-gray-100">
-                            <span class="bag-indicator" style="background:${getBagColor(t.type)}"></span>${t.bag}に入れてください
+                            <span class="bag-indicator" style="background:${getBagColor(t.type)}"></span>${t.bag}で出してください
                         </div>` : ''}
                     </div>`;
             }).join('');
@@ -374,7 +388,7 @@
                 searchResults.classList.remove('hidden');
                 searchResults.innerHTML = filtered.map(i => `
                     <div class="main-card p-4 flex items-center gap-4">
-                        <div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">${getIcons(i.type).replace('text-lg','')}</div>
+                        <div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">${getIcons(i.type).replace('text-sm','text-2xl')}</div>
                         <div class="flex-1">
                             <div class="flex justify-between items-start"><h3 class="font-black text-lg">${i.name}</h3><span class="text-[10px] font-black bg-${i.type} px-2 py-0.5 rounded text-white">${i.label}</span></div>
                             ${i.bag ? `<div class="mt-1 flex items-center text-xs font-bold text-gray-400"><span class="bag-indicator" style="background:${getBagColor(i.type)}"></span>${i.bag}</div>` : ''}
