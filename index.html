@@ -209,9 +209,8 @@
 
     <script>
         const CONFIG = {
-            // 特別なルール（年末年始や特定日イベント）
             specialRules: {
-                "2026-05-09": { label: "粗大ごみ", type: "sodai" }, // 2026年5月9日 粗大ごみ
+                "2026-05-09": { label: "粗大ごみ", type: "sodai" },
                 "2025-12-29": { label: "可燃ごみ", type: "burnable" },
                 "2025-12-30": { label: "可燃ごみ", type: "burnable" },
                 "2026-01-04": { label: "臨時収集", type: "burnable" },
@@ -225,8 +224,8 @@
             { name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "毎週月曜日。十分に水を切ってください。" },
             { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "第1火曜日。そのまま袋へ。" },
             { name: "乾電池", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "役場窓口へ直接お持ちください。" },
-            { name: "プラスチック製容器包装", type: "plastic", label: "プラスチック類", bag: "黄色い袋", note: "第2・4水曜日。きれいに洗って乾燥させて。" },
-            { name: "トレイ・パック", type: "plastic", label: "プラスチック類", bag: "黄色い袋", note: "第2・4水曜日。" },
+            { name: "プラスチック製容器包装", type: "plastic", label: "プラスチック類", bag: "", note: "第2・4水曜日。きれいに洗って乾燥させて。" },
+            { name: "トレイ・パック", type: "plastic", label: "プラスチック類", bag: "", note: "第2・4水曜日。" },
             { name: "新聞紙・チラシ", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
             { name: "雑誌・本", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
             { name: "ダンボール", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
@@ -276,24 +275,14 @@
             const d = date.getDate();
             const nth = Math.ceil(d / 7);
             
-            // 特別ルールの優先チェック
             if (CONFIG.specialRules[dateStr]) return [CONFIG.specialRules[dateStr]];
             
             let results = [];
-            // 可燃ごみ: 毎週 月曜日
             if (day === 1) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" });
-            
-            // 不燃ごみ: 第1火曜日
             if (day === 2 && nth === 1) results.push({ label: "不燃ごみ", type: "non-burnable", bag: "透明袋" });
-            
-            // 古紙類: 第1水曜日
             if (day === 3 && nth === 1) results.push({ label: "古紙類", type: "koshi", bag: "紐で縛る" });
-
-            // プラスチック類: 第2・4水曜日
-            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic", bag: "黄色袋" });
-            
-            // 缶・びん: 第3水曜日
-            if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin", bag: "袋なし" });
+            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic", bag: "" });
+            if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin", bag: "" });
             
             return results.length > 0 ? results : [{ label: "収集なし", type: "none" }];
         }
