@@ -16,6 +16,7 @@
             --can-bin: #fd9644;
             --hazardous: #a555ec;
             --sodai: #4b6584;
+            --pdf: #e74c3c;
         }
         body {
             background-color: #f7fbf2;
@@ -98,14 +99,6 @@
             justify-content: center;
             border-radius: 50%;
         }
-        .bag-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            display: inline-block;
-            margin-right: 4px;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
         .bg-burnable { background-color: var(--burnable); }
         .bg-non-burnable { background-color: var(--non-burnable); }
         .bg-plastic { background-color: var(--plastic); color: #444; }
@@ -113,73 +106,307 @@
         .bg-can-bin { background-color: var(--can-bin); }
         .bg-hazardous { background-color: var(--hazardous); }
         .bg-sodai { background-color: var(--sodai); }
+        .bg-pdf { background-color: var(--pdf); }
         .bg-none { background-color: #f1f5f9; color: #cbd5e1; }
+        
         .search-container {
             background: white;
             border-radius: 20px;
             border: 3px solid #eef5e9;
         }
-        .year-indicator {
-            font-size: 0.55rem;
-            display: block;
-            opacity: 0.8;
-            margin-bottom: -1px;
+        .class-badge {
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 8px;
+            color: white;
+            display: inline-block;
+            margin-top: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="min-h-screen">
+
     <header class="app-header pt-4 text-white text-center">
         <div class="flex justify-between items-center mb-4 px-6">
             <div class="w-8"></div>
             <h1 class="text-xl font-black tracking-widest text-white">南相木村ごみナビ</h1>
-            <button onclick="resetToToday()" class="p-2 opacity-80 active:opacity-100"><i class="fas fa-home text-lg"></i></button>
+            <button onclick="resetToToday()" class="p-2 opacity-80 active:opacity-100">
+                <i class="fas fa-home text-lg"></i>
+            </button>
         </div>
+        
         <div class="month-scroll-container mb-4" id="month-tabs"></div>
+
         <div class="flex justify-around items-center px-4 gap-2 mb-3">
-            <a href="tel:0267-78-2121" class="flex-1 flex flex-col items-center bg-white/10 rounded-2xl py-2 active:bg-white/20"><span class="text-[9px] opacity-70 mb-0.5">役場 住民課</span><span class="text-[11px] font-black">0267-78-2121</span></a>
-            <div class="flex-1 flex flex-col items-center bg-white/10 rounded-2xl py-2"><span class="text-[9px] opacity-70 mb-0.5">収集時間</span><span class="text-[11px] font-black">朝6:00〜8:30</span></div>
+            <a href="tel:0267-78-1050" class="flex-1 flex flex-col items-center bg-white/10 rounded-2xl py-2 active:bg-white/20">
+                <span class="text-[9px] opacity-70 mb-0.5">役場 住民課</span>
+                <span class="text-[11px] font-black">0267-78-1050</span>
+            </a>
+            <div class="flex-1 flex flex-col items-center bg-white/10 rounded-2xl py-2">
+                <span class="text-[9px] opacity-70 mb-0.5">収集時間</span>
+                <span class="text-[11px] font-black">朝6:00〜8:30</span>
+            </div>
         </div>
+
         <div class="flex justify-around items-center px-4 gap-2">
-            <div class="flex-1 flex items-center justify-center bg-white/10 rounded-2xl py-2"><i class="fas fa-exclamation-triangle text-hazardous mr-1.5 text-[10px]"></i><span class="text-[10px] font-bold">有害ごみ: 役場窓口へ</span></div>
-            <div class="flex-1 flex items-center justify-center bg-white/10 rounded-2xl py-2"><i class="fas fa-truck text-blue-300 mr-1.5 text-[10px]"></i><span class="text-[10px] font-bold">粗大ごみ: 5/9など</span></div>
+            <div class="flex-1 flex items-center justify-center bg-white/10 rounded-2xl py-2">
+                <i class="fas fa-exclamation-triangle text-hazardous mr-1.5 text-[10px]"></i>
+                <span class="text-[10px] font-bold">有害ごみ: 役場窓口へ</span>
+            </div>
+            <div class="flex-1 flex items-center justify-center bg-white/10 rounded-2xl py-2">
+                <i class="fas fa-truck text-blue-300 mr-1.5 text-[10px]"></i>
+                <span class="text-[10px] font-bold">粗大ごみ: 5/9など</span>
+            </div>
         </div>
     </header>
+
     <main class="mt-6">
         <section class="px-5 mb-8">
-            <p class="text-[11px] font-bold text-gray-500 mb-2 leading-relaxed text-center px-2">分別で分からない場合は、下記で検索し、<br class="sm:hidden">それでも不明な場合は住民課へお問い合わせください。</p>
-            <div class="search-container flex items-center px-4 py-1 shadow-sm"><i class="fas fa-search text-gray-300 ml-1 text-xl"></i><input type="text" id="search-input" placeholder="なにを捨てたいですか？" class="w-full p-4 text-base font-bold focus:outline-none bg-transparent"></div>
+            <p class="text-[11px] font-bold text-gray-500 mb-2 leading-relaxed text-center px-2">
+                捨てたい品名を入力してください。<br>分別区分（収集日や出し方）を判定します。
+            </p>
+            <div class="search-container flex items-center px-4 py-1 shadow-sm">
+                <i class="fas fa-search text-gray-300 ml-1 text-xl"></i>
+                <input type="text" id="search-input" placeholder="例：インクリボン、歯ブラシ、トレイ" 
+                       class="w-full p-4 text-base font-bold focus:outline-none bg-transparent">
+            </div>
             <div id="search-results" class="mt-4 space-y-4 hidden px-1"></div>
         </section>
+
         <section id="today-section" class="px-5 mb-10">
             <div class="main-card p-6 border-b-4 border-green-200">
-                <div class="flex items-center justify-between mb-5"><span class="text-gray-600 font-black text-lg" id="today-display">--/--（-）</span><span class="bg-red-500 text-white text-[10px] font-black px-4 py-1 rounded-full shadow-sm">今日</span></div>
+                <div class="flex items-center justify-between mb-5">
+                    <span class="text-gray-600 font-black text-lg" id="today-display">--/--（-）</span>
+                    <span class="bg-red-500 text-white text-[10px] font-black px-4 py-1 rounded-full shadow-sm">今日</span>
+                </div>
                 <div id="today-content" class="flex flex-col items-center gap-4"></div>
-                <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-100 flex items-center justify-center text-[11px] text-gray-400 font-bold"><i class="fas fa-arrows-alt-h mr-2"></i> 左右にめくるとカレンダーが見れます <i class="fas fa-arrows-alt-h ml-2"></i></div>
             </div>
         </section>
-        <section class="mb-12"><div class="month-slider" id="month-slider"></div></section>
+
+        <section class="mb-12">
+            <div class="month-slider" id="month-slider"></div>
+        </section>
     </main>
-    <footer class="pb-8 text-center opacity-40"><p class="text-[10px] font-black uppercase tracking-widest">Minamiaiki Digital Museum Project</p></footer>
-    <div style="text-align: center; margin-bottom: 40px;"><a href="https://yoshi0213saku-spec.github.io/minami-gomiapuri/"><img src="minami-gominavi.png" alt="南相木村ごみナビ" style="width:200px;"></a></div>
+
+    <footer class="pb-16 text-center opacity-40">
+        <p class="text-[10px] font-black uppercase tracking-widest">Minamiaiki Digital Museum Project</p>
+    </footer>
+
     <script>
-        const CONFIG = {specialRules: {"2026-05-09": { label: "粗大ごみ", type: "sodai" },"2025-12-29": { label: "可燃ごみ", type: "burnable" },"2025-12-30": { label: "可燃ごみ", type: "burnable" },"2026-01-04": { label: "臨時収集", type: "burnable" },"2026-12-29": { label: "可燃ごみ", type: "burnable" },"2026-12-30": { label: "可燃ごみ", type: "burnable" },"2027-01-04": { label: "臨時収集", type: "burnable" }}};
-        const DICTIONARY = [{ name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "毎週月曜日。" },{ name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋" },{ name: "乾電池", type: "hazardous", label: "有害ごみ", bag: "役場窓口" },{ name: "プラスチック製容器包装", type: "plastic", label: "プラスチック類" },{ name: "トレイ・パック", type: "plastic", label: "プラスチック類" },{ name: "新聞紙・チラシ", type: "koshi", label: "古紙類" },{ name: "雑誌・本", type: "koshi", label: "古紙類" },{ name: "ダンボール", type: "koshi", label: "古紙類" },{ name: "飲料缶", type: "can-bin", label: "缶・びん" },{ name: "空きびん", type: "can-bin", label: "缶・びん" },{ name: "スプレー缶", type: "hazardous", label: "有害ごみ" },{ name: "ライター", type: "hazardous", label: "有害ごみ" },{ name: "蛍光管・電球", type: "hazardous", label: "有害ごみ" },{ name: "小型家電", type: "non-burnable", label: "不燃ごみ" },{ name: "タンス・机", type: "sodai", label: "粗大ごみ" }];
+        const CONFIG = {
+            specialRules: {
+                "2026-05-09": { label: "粗大ごみ", type: "sodai" },
+                "2025-12-29": { label: "可燃ごみ", type: "burnable" },
+                "2025-12-30": { label: "可燃ごみ", type: "burnable" },
+                "2026-01-04": { label: "臨時収集", type: "burnable" }
+            }
+        };
+
+        const DICTIONARY = [
+            // --- 可燃ごみ (毎週月曜日) ---
+            { name: "生ごみ・野菜くず・果物の皮", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。水をよく切って。" },
+            { name: "紙くず・レシート・ティッシュ", type: "burnable", label: "可燃ごみ", note: "シュレッダーダストも含む。" },
+            { name: "衣類・シャツ・ズボン・下着", type: "burnable", label: "可燃ごみ", note: "綿や合成繊維の衣類。" },
+            { name: "使い捨ておむつ", type: "burnable", label: "可燃ごみ", note: "汚物はトイレに流して。" },
+            { name: "革靴・パンプス・サンダル", type: "burnable", label: "可燃ごみ", note: "金属の少ないもの。" },
+            { name: "歯ブラシ・カミソリ(プラスチック製)", type: "burnable", label: "可燃ごみ", note: "プラスチック製日用品は可燃へ。" },
+            { name: "保冷剤・乾燥剤・脱酸素剤", type: "burnable", label: "可燃ごみ", note: "そのまま捨てられます。" },
+            { name: "ストッキング・靴下", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+            { name: "生理用品", type: "burnable", label: "可燃ごみ", note: "新聞紙等に包んで。" },
+            { name: "ペットのトイレ砂", type: "burnable", label: "可燃ごみ", note: "汚物は取り除いて。" },
+            { name: "木くず・割り箸・竹串", type: "burnable", label: "可燃ごみ", note: "鋭利なものは紙に包んで。" },
+
+            // --- 不燃ごみ (毎月第1火曜日) ---
+            { name: "インクリボン・ワープロリボン", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。カセットごと。" },
+            { name: "ビデオテープ・カセットテープ・ディスク", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。ケースごと。" },
+            { name: "陶磁器・茶わん・お皿・植木鉢", type: "non-burnable", label: "不燃ごみ", note: "割れたものは紙に包んで。" },
+            { name: "ガラスコップ・耐熱ガラス・鏡", type: "non-burnable", label: "不燃ごみ", note: "割れたものは「キケン」と表記。" },
+            { name: "小型家電・ドライヤー・アイロン", type: "non-burnable", label: "不燃ごみ", note: "30cm角以内の電化製品。" },
+            { name: "鍋・釜・やかん・フライパン", type: "non-burnable", label: "不燃ごみ", note: "金属・ホーロー製。" },
+            { name: "電球・LED電球", type: "non-burnable", label: "不燃ごみ", note: "購入時の箱に入れて破損防止。" },
+            { name: "傘・アンブレラ", type: "non-burnable", label: "不燃ごみ", note: "布やビニールはそのままで可。" },
+            { name: "アルミホイル・金属製キャップ", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "おもちゃ(複雑なもの・金属含)", type: "non-burnable", label: "不燃ごみ", note: "電池は必ず抜いてください。" },
+            { name: "カイロ(使い捨て)", type: "non-burnable", label: "不燃ごみ", note: "中身が不燃性のため。" },
+
+            // --- プラスチック類 (毎月第2・4水曜日) ---
+            { name: "食品トレイ・肉の皿・魚の皿", type: "plastic", label: "プラスチック類", note: "第2・4水曜日。きれいに洗って。" },
+            { name: "卵パック・納豆容器・弁当容器", type: "plastic", label: "プラスチック類", note: "汚れの落ちないものは可燃ごみへ。" },
+            { name: "シャンプー・洗剤のボトル・容器", type: "plastic", label: "プラスチック類", note: "中をすすいで空にする。" },
+            { name: "お菓子の袋・レジ袋・コンビニ袋", type: "plastic", label: "プラスチック類", note: "プラマークがあるもの。" },
+            { name: "ペットボトルのキャップ・ふた・ラベル", type: "plastic", label: "プラスチック類", note: "本体（資源）と必ず分ける。" },
+            { name: "緩衝材・プチプチ・発泡スチロール", type: "plastic", label: "プラスチック類", note: "大きいものは割って袋に。" },
+            { name: "マヨネーズ・ケチャップのチューブ", type: "plastic", label: "プラスチック類", note: "中身を使い切り、軽く洗う。" },
+
+            // --- 古紙類 (毎月第1水曜日) ---
+            { name: "新聞紙・チラシ", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで十字に縛る。" },
+            { name: "雑誌・カタログ・本・パンフレット", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで十字に縛る。" },
+            { name: "ダンボール", type: "koshi", label: "古紙類", note: "ガムテープ等は剥がしてたたむ。" },
+            { name: "紙パック・牛乳パック", type: "koshi", label: "古紙類", note: "洗って開き、乾燥させて出す。" },
+            { name: "お菓子・ティッシュの空き箱", type: "koshi", label: "古紙類", note: "平らにつぶして縛るか袋へ。" },
+
+            // --- 缶・びん (毎月第3水曜日) ---
+            { name: "飲料缶・ビール缶・ジュース缶", type: "can-bin", label: "缶・びん", note: "アルミ・スチール共に。中を洗う。" },
+            { name: "食品缶詰の缶・粉ミルクの缶", type: "can-bin", label: "缶・びん", note: "第3水曜日。汚れを落として。" },
+            { name: "びん・ボトル・調味料のびん", type: "can-bin", label: "缶・びん", note: "キャップを外し、色別に分別。" },
+
+            // --- 有害ごみ (役場窓口) ---
+            { name: "乾電池・マンガン・アルカリ・ボタン", type: "hazardous", label: "有害ごみ", note: "役場窓口の専用箱へ。" },
+            { name: "スプレー缶・カセットボンベ", type: "hazardous", label: "有害ごみ", note: "中身を空にして役場窓口へ。" },
+            { name: "使い捨てライター", type: "hazardous", label: "有害ごみ", note: "ガスを抜き役場窓口へ。" },
+            { name: "蛍光管・環形・直管", type: "hazardous", label: "有害ごみ", note: "割れないよう役場窓口へ。" },
+            { name: "水銀体温計・血圧計", type: "hazardous", label: "有害ごみ", note: "役場窓口へ直接。" },
+
+            // --- 粗大ごみ (特定日) ---
+            { name: "自転車・三輪車", type: "sodai", label: "粗大ごみ", note: "5/9など特定日の収集。詳細は住民課。" },
+            { name: "タンス・食器棚・ベッド", type: "sodai", label: "粗大ごみ", note: "大型家具。解体不要。" },
+            { name: "布団・毛布・カーペット", type: "sodai", label: "粗大ごみ", note: "ひもでしっかり縛って出す。" },
+            { name: "ストーブ・ファンヒーター", type: "sodai", label: "粗大ごみ", note: "灯油と電池は必ず抜いて。" },
+            { name: "マッサージチェア・ソファー", type: "sodai", label: "粗大ごみ", note: "特定日の収集日のみ。" },
+
+            // --- PDF資料リンク ---
+            { name: "別紙資料 gomi01", type: "pdf", label: "PDF資料", url: "gomi01.pdf", note: "ごみ分別ガイド（詳細1）" },
+            { name: "別紙資料 gomi02", type: "pdf", label: "PDF資料", url: "gomi02.pdf", note: "ごみ分別ガイド（詳細2）" },
+            { name: "別紙資料 gomi03", type: "pdf", label: "PDF資料", url: "gomi03.pdf", note: "ごみ分別ガイド（詳細3）" }
+        ];
+
         const REAL_TODAY = new Date();
         const monthSlider = document.getElementById('month-slider');
         const monthTabsContainer = document.getElementById('month-tabs');
         const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
-        function getIcons(type) { switch(type) { case 'burnable': return '<i class="fas fa-fire text-sm"></i>'; case 'non-burnable': return '<i class="fas fa-dumpster text-sm"></i>'; case 'plastic': return '<i class="fas fa-recycle text-sm"></i>'; case 'koshi': return '<i class="fas fa-book text-sm"></i>'; case 'can-bin': return '<i class="fas fa-wine-bottle text-sm"></i>'; case 'hazardous': return '<i class="fas fa-exclamation-triangle text-sm"></i>'; case 'sodai': return '<i class="fas fa-truck text-sm"></i>'; default: return '<i class="fas fa-calendar-times text-sm"></i>'; } }
-        function getBagColor(type) { switch(type) { case 'burnable': return '#ff6b6b'; case 'non-burnable': return '#4d96ff'; case 'plastic': return '#ffd93d'; case 'koshi': return '#6bc11f'; case 'can-bin': return '#fd9644'; case 'hazardous': return '#a555ec'; case 'sodai': return '#4b6584'; default: return '#ccc'; } }
-        function getGarbageTypes(dateStr) { const date = new Date(dateStr); const day = date.getDay(); const d = date.getDate(); const nth = Math.ceil(d / 7); if (CONFIG.specialRules[dateStr]) return [CONFIG.specialRules[dateStr]]; let results = []; if (day === 1) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" }); if (day === 2 && nth === 1) results.push({ label: "不燃ごみ", type: "non-burnable", bag: "透明袋" }); if (day === 3 && nth === 1) results.push({ label: "古紙類", type: "koshi", bag: "紐で縛る" }); if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic", bag: "" }); if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin", bag: "" }); return results.length > 0 ? results : [{ label: "収集なし", type: "none" }]; }
-        function initApp() { const todayStr = `${REAL_TODAY.getFullYear()}-${String(REAL_TODAY.getMonth()+1).padStart(2,'0')}-${String(REAL_TODAY.getDate()).padStart(2,'0')}`; const displayDate = document.getElementById('today-display'); if (displayDate) displayDate.innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`; renderToday(getGarbageTypes(todayStr)); monthSlider.innerHTML = ''; monthTabsContainer.innerHTML = ''; let tempDate = new Date(REAL_TODAY.getFullYear(), REAL_TODAY.getMonth(), 1); for (let i = 0; i < 12; i++) { const y = tempDate.getFullYear(), m = tempDate.getMonth(); const btn = document.createElement('button'); btn.className = `month-tab`; btn.innerHTML = `<span class="year-indicator">${y}</span>${m + 1}月`; btn.onclick = () => scrollToMonth(i); monthTabsContainer.appendChild(btn); const page = document.createElement('div'); page.className = 'month-page'; let html = `<div class="mb-5 px-1"><h2 class="text-gray-800 font-black text-lg">${y}年 ${m + 1}月</h2></div><div class="calendar-grid">`; const lastDay = new Date(y, m + 1, 0).getDate(); for (let d = 1; d <= lastDay; d++) { const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const types = getGarbageTypes(dateStr); const dayNum = new Date(y, m, d).getDay(); const color = dayNum === 0 ? 'text-red-500' : (dayNum === 6 ? 'text-blue-500' : 'text-gray-400'); html += `<div class="calendar-item ${dateStr === todayStr ? 'ring-4 ring-[#2d5a27]/20 border-[#2d5a27]' : ''}"><div class="font-black text-xs mb-3 ${color}">${m + 1}/${d}（${dayNames[dayNum]}）</div><div class="space-y-2">${types.map(t => `<div class="flex items-center gap-1"><div class="type-icon bg-${t.type} text-white">${getIcons(t.type)}</div><div class="flex flex-col"><span class="text-[10px] font-black leading-tight">${t.label}</span></div></div>`).join('')}</div></div>`; } page.innerHTML = html + `</div>`; monthSlider.appendChild(page); tempDate.setMonth(tempDate.getMonth() + 1); } updateActiveTab(0); }
-        function renderToday(types) { const container = document.getElementById('today-content'); if (!container) return; container.innerHTML = types.map(t => { if (t.type === 'none') return `<i class="fas fa-bed text-4xl text-gray-200 mb-2"></i><span class="text-xl font-black text-gray-300">今日は収集なし</span>`; return `<div class="flex flex-col items-center w-full"><div class="w-20 h-20 bg-${t.type} rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-2">${getIcons(t.type).replace('text-sm','text-3xl')}</div><span class="text-2xl font-black">${t.label}</span>${t.bag ? `<div class="mt-2 flex items-center bg-gray-50 px-4 py-1 rounded-full text-sm font-bold text-gray-500 border border-gray-100"><span class="bag-indicator" style="background:${getBagColor(t.type)}"></span>${t.bag}で出してください</div>` : ''}</div>`; }).join(''); }
+
+        function getIcons(type) {
+            switch(type) {
+                case 'burnable': return '<i class="fas fa-fire text-sm"></i>';
+                case 'non-burnable': return '<i class="fas fa-dumpster text-sm"></i>';
+                case 'plastic': return '<i class="fas fa-recycle text-sm"></i>';
+                case 'koshi': return '<i class="fas fa-book text-sm"></i>';
+                case 'can-bin': return '<i class="fas fa-wine-bottle text-sm"></i>';
+                case 'hazardous': return '<i class="fas fa-exclamation-triangle text-sm"></i>';
+                case 'sodai': return '<i class="fas fa-truck text-sm"></i>';
+                case 'pdf': return '<i class="fas fa-file-pdf text-sm"></i>';
+                default: return '<i class="fas fa-calendar-times text-sm"></i>';
+            }
+        }
+
+        function getGarbageTypes(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDay();
+            const d = date.getDate();
+            const nth = Math.ceil(d / 7);
+            if (CONFIG.specialRules[dateStr]) return [CONFIG.specialRules[dateStr]];
+            let results = [];
+            if (day === 1) results.push({ label: "可燃ごみ", type: "burnable" });
+            if (day === 2 && nth === 1) results.push({ label: "不燃ごみ", type: "non-burnable" });
+            if (day === 3 && nth === 1) results.push({ label: "古紙類", type: "koshi" });
+            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic" });
+            if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin" });
+            return results.length > 0 ? results : [{ label: "収集なし", type: "none" }];
+        }
+
+        function initApp() {
+            const todayStr = `${REAL_TODAY.getFullYear()}-${String(REAL_TODAY.getMonth()+1).padStart(2,'0')}-${String(REAL_TODAY.getDate()).padStart(2,'0')}`;
+            const displayDate = document.getElementById('today-display');
+            if (displayDate) displayDate.innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`;
+            renderToday(getGarbageTypes(todayStr));
+
+            monthSlider.innerHTML = '';
+            monthTabsContainer.innerHTML = '';
+            let tempDate = new Date(REAL_TODAY.getFullYear(), REAL_TODAY.getMonth(), 1);
+
+            for (let i = 0; i < 12; i++) {
+                const y = tempDate.getFullYear(), m = tempDate.getMonth();
+                const btn = document.createElement('button');
+                btn.className = `month-tab`;
+                btn.innerHTML = `<span class="year-indicator">${y}</span>${m + 1}月`;
+                btn.onclick = () => scrollToMonth(i);
+                monthTabsContainer.appendChild(btn);
+
+                const page = document.createElement('div');
+                page.className = 'month-page';
+                let html = `<div class="mb-5 px-1"><h2 class="text-gray-800 font-black text-lg">${y}年 ${m + 1}月</h2></div><div class="calendar-grid">`;
+                const lastDay = new Date(y, m + 1, 0).getDate();
+                for (let d = 1; d <= lastDay; d++) {
+                    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const types = getGarbageTypes(dateStr);
+                    const dayNum = new Date(y, m, d).getDay();
+                    const color = dayNum === 0 ? 'text-red-500' : (dayNum === 6 ? 'text-blue-500' : 'text-gray-400');
+                    html += `
+                        <div class="calendar-item ${dateStr === todayStr ? 'ring-4 ring-[#2d5a27]/20 border-[#2d5a27]' : ''}">
+                            <div class="font-black text-xs mb-3 ${color}">${m + 1}/${d}（${dayNames[dayNum]}）</div>
+                            <div class="space-y-2">
+                                ${types.map(t => `
+                                    <div class="flex items-center gap-1">
+                                        <div class="type-icon bg-${t.type} text-white">${getIcons(t.type)}</div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] font-black leading-tight">${t.label}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+                page.innerHTML = html + `</div>`;
+                monthSlider.appendChild(page);
+                tempDate.setMonth(tempDate.getMonth() + 1);
+            }
+            updateActiveTab(0);
+        }
+
+        function renderToday(types) {
+            const container = document.getElementById('today-content');
+            if (!container) return;
+            container.innerHTML = types.map(t => {
+                if (t.type === 'none') return `<i class="fas fa-bed text-4xl text-gray-200 mb-2"></i><span class="text-xl font-black text-gray-300">今日は収集なし</span>`;
+                return `
+                    <div class="flex flex-col items-center w-full">
+                        <div class="w-16 h-16 bg-${t.type} rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-2">
+                            ${getIcons(t.type).replace('text-sm','text-2xl')}
+                        </div>
+                        <span class="text-xl font-black">${t.label}</span>
+                    </div>`;
+            }).join('');
+        }
+
         function scrollToMonth(index) { monthSlider.scrollTo({ left: monthSlider.clientWidth * index, behavior: 'smooth' }); }
         function resetToToday() { scrollToMonth(0); }
         monthSlider.addEventListener('scroll', () => updateActiveTab(Math.round(monthSlider.scrollLeft / monthSlider.clientWidth)), { passive: true });
-        function updateActiveTab(index) { const tabs = document.querySelectorAll('.month-tab'); tabs.forEach((tab, i) => { if (i === index) { tab.classList.add('active'); tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } else tab.classList.remove('active'); }); }
+
+        function updateActiveTab(index) {
+            const tabs = document.querySelectorAll('.month-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else tab.classList.remove('active');
+            });
+        }
+
         const searchInput = document.getElementById('search-input'), searchResults = document.getElementById('search-results');
-        if (searchInput && searchResults) { searchInput.addEventListener('input', (e) => { const val = e.target.value.trim(); if (val.length === 0) { searchResults.classList.add('hidden'); return; } const filtered = DICTIONARY.filter(i => i.name.includes(val) || i.label.includes(val)); searchResults.classList.remove('hidden'); searchResults.innerHTML = filtered.map(i => `<div class="main-card p-4 flex items-center gap-4"><div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">${getIcons(i.type).replace('text-sm','text-2xl')}</div><div class="flex-1"><div class="flex justify-between items-start"><h3 class="font-black text-lg">${i.name}</h3><span class="text-[10px] font-black bg-${i.type} px-2 py-0.5 rounded text-white">${i.label}</span></div>${i.bag ? `<div class="mt-1 flex items-center text-xs font-bold text-gray-400"><span class="bag-indicator" style="background:${getBagColor(i.type)}"></span>${i.bag}</div>` : ''}<p class="text-[10px] text-gray-500 mt-1">${i.note || ''}</p></div></div>`).join('') || '<div class="text-center py-10 opacity-30 font-black">見つかりませんでした</div>'; }); }
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                if (val.length === 0) { searchResults.classList.add('hidden'); return; }
+                const filtered = DICTIONARY.filter(i => i.name.toLowerCase().includes(val.toLowerCase()) || i.label.includes(val));
+                searchResults.classList.remove('hidden');
+                searchResults.innerHTML = filtered.map(i => {
+                    const cardContent = `
+                        <div class="w-12 h-12 bg-${i.type} rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">${getIcons(i.type).replace('text-sm','text-xl')}</div>
+                        <div class="flex-1">
+                            <h3 class="font-black text-base">${i.name}</h3>
+                            <span class="class-badge bg-${i.type}">${i.label}</span>
+                            <p class="text-[11px] text-gray-500 mt-2 font-bold leading-tight">${i.note || ''}</p>
+                        </div>`;
+                    
+                    if (i.url) {
+                        return `<a href="${i.url}" target="_blank" class="main-card p-4 flex items-center gap-4 block hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98] transform">${cardContent}</a>`;
+                    }
+                    return `<div class="main-card p-4 flex items-center gap-4 shadow-sm">${cardContent}</div>`;
+                }).join('') || '<div class="text-center py-10 opacity-30 font-black">該当する品目が見つかりませんでした</div>';
+            });
+        }
         window.onload = initApp;
     </script>
 </body>
