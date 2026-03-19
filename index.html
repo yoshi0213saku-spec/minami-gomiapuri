@@ -91,29 +91,6 @@
             padding: 4px 16px;
             scrollbar-width: none;
         }
-        .type-icon {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        .bg-burnable { background-color: var(--burnable); }
-        .bg-non-burnable { background-color: var(--non-burnable); }
-        .bg-plastic { background-color: var(--plastic); color: #444; }
-        .bg-koshi { background-color: var(--koshi); }
-        .bg-can-bin { background-color: var(--can-bin); }
-        .bg-hazardous { background-color: var(--hazardous); }
-        .bg-sodai { background-color: var(--sodai); }
-        .bg-pdf { background-color: var(--pdf); }
-        .bg-none { background-color: #f1f5f9; color: #cbd5e1; }
-        
-        .search-container {
-            background: white;
-            border-radius: 20px;
-            border: 3px solid #eef5e9;
-        }
         .class-badge {
             font-size: 0.7rem;
             font-weight: 900;
@@ -122,7 +99,11 @@
             color: white;
             display: inline-block;
             margin-top: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .search-container {
+            background: white;
+            border-radius: 20px;
+            border: 3px solid #eef5e9;
         }
     </style>
 </head>
@@ -146,7 +127,7 @@
             </a>
             <div class="flex-1 flex flex-col items-center bg-white/10 rounded-2xl py-2">
                 <span class="text-[9px] opacity-70 mb-0.5">収集時間</span>
-                <span class="text-[11px] font-black">朝6:00〜8:30</span>
+                <span class="text-[11px] font-black">朝6:00〜8:00</span>
             </div>
         </div>
 
@@ -163,16 +144,16 @@
     </header>
 
     <main class="mt-6">
-        <section class="px-5 mb-8">
-            <p class="text-[11px] font-bold text-gray-500 mb-2 leading-relaxed text-center px-2">
-                捨てたい品名を入力してください。<br>分別区分（収集日や出し方）を判定します。
+        <section class="px-5 mb-8 text-center">
+            <p class="text-[11px] font-bold text-gray-500 mb-2 leading-relaxed px-2">
+                品名を入力すると分別区分が表示されます。<br>それでも分からない時は役場住民課にお電話ください。
             </p>
             <div class="search-container flex items-center px-4 py-1 shadow-sm">
                 <i class="fas fa-search text-gray-300 ml-1 text-xl"></i>
-                <input type="text" id="search-input" placeholder="例：インクリボン、歯ブラシ、トレイ" 
+                <input type="text" id="search-input" placeholder="例：人形、インクリボン、アイロン" 
                        class="w-full p-4 text-base font-bold focus:outline-none bg-transparent">
             </div>
-            <div id="search-results" class="mt-4 space-y-4 hidden px-1"></div>
+            <div id="search-results" class="mt-4 space-y-4 hidden text-left px-1"></div>
         </section>
 
         <section id="today-section" class="px-5 mb-10">
@@ -205,76 +186,72 @@
         };
 
         const DICTIONARY = [
-            // --- 可燃ごみ (毎週月曜日) ---
-            { name: "生ごみ・野菜くず・果物の皮", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。水をよく切って。" },
-            { name: "紙くず・レシート・ティッシュ", type: "burnable", label: "可燃ごみ", note: "シュレッダーダストも含む。" },
-            { name: "衣類・シャツ・ズボン・下着", type: "burnable", label: "可燃ごみ", note: "綿や合成繊維の衣類。" },
-            { name: "使い捨ておむつ", type: "burnable", label: "可燃ごみ", note: "汚物はトイレに流して。" },
-            { name: "革靴・パンプス・サンダル", type: "burnable", label: "可燃ごみ", note: "金属の少ないもの。" },
-            { name: "歯ブラシ・カミソリ(プラスチック製)", type: "burnable", label: "可燃ごみ", note: "プラスチック製日用品は可燃へ。" },
-            { name: "保冷剤・乾燥剤・脱酸素剤", type: "burnable", label: "可燃ごみ", note: "そのまま捨てられます。" },
-            { name: "ストッキング・靴下", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
-            { name: "生理用品", type: "burnable", label: "可燃ごみ", note: "新聞紙等に包んで。" },
-            { name: "ペットのトイレ砂", type: "burnable", label: "可燃ごみ", note: "汚物は取り除いて。" },
-            { name: "木くず・割り箸・竹串", type: "burnable", label: "可燃ごみ", note: "鋭利なものは紙に包んで。" },
+            // --- 人形関連を強化 ---
+            { name: "人形(布製・木製)", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。金属パーツが少ないもの。" },
+            { name: "人形(プラスチック製)", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。ソフビ人形など。" },
+            { name: "ぬいぐるみ", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。中の綿や布は可燃。" },
+            { name: "ひな人形・五月人形", type: "sodai", label: "粗大ごみ", note: "特定日の収集。ケースに入ったままのものや大型のセット。" },
+            { name: "人形のガラスケース", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。割れないよう配慮してください。" },
 
-            // --- 不燃ごみ (毎月第1火曜日) ---
-            { name: "インクリボン・ワープロリボン", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。カセットごと。" },
-            { name: "ビデオテープ・カセットテープ・ディスク", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。ケースごと。" },
-            { name: "陶磁器・茶わん・お皿・植木鉢", type: "non-burnable", label: "不燃ごみ", note: "割れたものは紙に包んで。" },
-            { name: "ガラスコップ・耐熱ガラス・鏡", type: "non-burnable", label: "不燃ごみ", note: "割れたものは「キケン」と表記。" },
-            { name: "小型家電・ドライヤー・アイロン", type: "non-burnable", label: "不燃ごみ", note: "30cm角以内の電化製品。" },
-            { name: "鍋・釜・やかん・フライパン", type: "non-burnable", label: "不燃ごみ", note: "金属・ホーロー製。" },
-            { name: "電球・LED電球", type: "non-burnable", label: "不燃ごみ", note: "購入時の箱に入れて破損防止。" },
-            { name: "傘・アンブレラ", type: "non-burnable", label: "不燃ごみ", note: "布やビニールはそのままで可。" },
-            { name: "アルミホイル・金属製キャップ", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
-            { name: "おもちゃ(複雑なもの・金属含)", type: "non-burnable", label: "不燃ごみ", note: "電池は必ず抜いてください。" },
-            { name: "カイロ(使い捨て)", type: "non-burnable", label: "不燃ごみ", note: "中身が不燃性のため。" },
+            // --- ア行 ---
+            { name: "アイロン", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。小型家電。" },
+            { name: "アイロン台", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "空き缶", type: "can-bin", label: "缶・びん", note: "第3水曜日。中を洗って。" },
+            { name: "空きびん", type: "can-bin", label: "缶・びん", note: "第3水曜日。キャップを外して。" },
+            { name: "雨傘", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "インクリボン", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。カセットごと不燃。" },
+            { name: "衣類・服", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+            { name: "板くず", type: "burnable", label: "可燃ごみ", note: "30cm角以内。" },
 
-            // --- プラスチック類 (毎月第2・4水曜日) ---
-            { name: "食品トレイ・肉の皿・魚の皿", type: "plastic", label: "プラスチック類", note: "第2・4水曜日。きれいに洗って。" },
-            { name: "卵パック・納豆容器・弁当容器", type: "plastic", label: "プラスチック類", note: "汚れの落ちないものは可燃ごみへ。" },
-            { name: "シャンプー・洗剤のボトル・容器", type: "plastic", label: "プラスチック類", note: "中をすすいで空にする。" },
-            { name: "お菓子の袋・レジ袋・コンビニ袋", type: "plastic", label: "プラスチック類", note: "プラマークがあるもの。" },
-            { name: "ペットボトルのキャップ・ふた・ラベル", type: "plastic", label: "プラスチック類", note: "本体（資源）と必ず分ける。" },
-            { name: "緩衝材・プチプチ・発泡スチロール", type: "plastic", label: "プラスチック類", note: "大きいものは割って袋に。" },
-            { name: "マヨネーズ・ケチャップのチューブ", type: "plastic", label: "プラスチック類", note: "中身を使い切り、軽く洗う。" },
+            // --- カ行 ---
+            { name: "鏡", type: "non-burnable", label: "不燃ごみ", note: "割れたものは紙に包んで。" },
+            { name: "カセットテープ", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "鞄・かばん", type: "burnable", label: "可燃ごみ", note: "革製・布製は可燃。" },
+            { name: "紙おむつ", type: "burnable", label: "可燃ごみ", note: "汚物はトイレへ流して。" },
+            { name: "紙くず", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+            { name: "紙パック", type: "koshi", label: "古紙類", note: "第1水曜日。洗って開いて乾かす。" },
+            { name: "乾電池", type: "hazardous", label: "有害ごみ", note: "役場窓口の専用箱へ。" },
+            { name: "靴・くつ", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+            { name: "蛍光管", type: "hazardous", label: "有害ごみ", note: "役場窓口へ。" },
 
-            // --- 古紙類 (毎月第1水曜日) ---
-            { name: "新聞紙・チラシ", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで十字に縛る。" },
-            { name: "雑誌・カタログ・本・パンフレット", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで十字に縛る。" },
-            { name: "ダンボール", type: "koshi", label: "古紙類", note: "ガムテープ等は剥がしてたたむ。" },
-            { name: "紙パック・牛乳パック", type: "koshi", label: "古紙類", note: "洗って開き、乾燥させて出す。" },
-            { name: "お菓子・ティッシュの空き箱", type: "koshi", label: "古紙類", note: "平らにつぶして縛るか袋へ。" },
+            // --- サ行 ---
+            { name: "雑誌", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで縛る。" },
+            { name: "皿(陶磁器・ガラス)", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "自転車", type: "sodai", label: "粗大ごみ", note: "5/9など特定日の収集。" },
+            { name: "新聞紙", type: "koshi", label: "古紙類", note: "第1水曜日。ひもで縛る。" },
+            { name: "炊飯器", type: "non-burnable", label: "不燃ごみ", note: "小型家電。" },
+            { name: "スプレー缶", type: "hazardous", label: "有害ごみ", note: "使い切り役場窓口へ。" },
+            { name: "生ごみ", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。水を切る。" },
 
-            // --- 缶・びん (毎月第3水曜日) ---
-            { name: "飲料缶・ビール缶・ジュース缶", type: "can-bin", label: "缶・びん", note: "アルミ・スチール共に。中を洗う。" },
-            { name: "食品缶詰の缶・粉ミルクの缶", type: "can-bin", label: "缶・びん", note: "第3水曜日。汚れを落として。" },
-            { name: "びん・ボトル・調味料のびん", type: "can-bin", label: "缶・びん", note: "キャップを外し、色別に分別。" },
+            // --- タ行 ---
+            { name: "体温計(水銀)", type: "hazardous", label: "有害ごみ", note: "役場窓口へ。" },
+            { name: "体重計", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "卵パック", type: "plastic", label: "プラスチック類", note: "第2・4水曜日。" },
+            { name: "ダンボール", type: "koshi", label: "古紙類", note: "たたんで縛る。" },
+            { name: "トレイ", type: "plastic", label: "プラスチック類", note: "第2・4水曜日。" },
 
-            // --- 有害ごみ (役場窓口) ---
-            { name: "乾電池・マンガン・アルカリ・ボタン", type: "hazardous", label: "有害ごみ", note: "役場窓口の専用箱へ。" },
-            { name: "スプレー缶・カセットボンベ", type: "hazardous", label: "有害ごみ", note: "中身を空にして役場窓口へ。" },
-            { name: "使い捨てライター", type: "hazardous", label: "有害ごみ", note: "ガスを抜き役場窓口へ。" },
-            { name: "蛍光管・環形・直管", type: "hazardous", label: "有害ごみ", note: "割れないよう役場窓口へ。" },
-            { name: "水銀体温計・血圧計", type: "hazardous", label: "有害ごみ", note: "役場窓口へ直接。" },
+            // --- ハ行 ---
+            { name: "歯ブラシ", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+            { name: "バケツ", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "ペットボトル", type: "can-bin", label: "資源", note: "キャップとラベルはプラへ。" },
+            { name: "布団", type: "sodai", label: "粗大ごみ", note: "ひもで縛る。" },
 
-            // --- 粗大ごみ (特定日) ---
-            { name: "自転車・三輪車", type: "sodai", label: "粗大ごみ", note: "5/9など特定日の収集。詳細は住民課。" },
-            { name: "タンス・食器棚・ベッド", type: "sodai", label: "粗大ごみ", note: "大型家具。解体不要。" },
-            { name: "布団・毛布・カーペット", type: "sodai", label: "粗大ごみ", note: "ひもでしっかり縛って出す。" },
-            { name: "ストーブ・ファンヒーター", type: "sodai", label: "粗大ごみ", note: "灯油と電池は必ず抜いて。" },
-            { name: "マッサージチェア・ソファー", type: "sodai", label: "粗大ごみ", note: "特定日の収集日のみ。" },
+            // --- マ行 ---
+            { name: "漫画本", type: "koshi", label: "古紙類", note: "第1水曜日。" },
+            { name: "毛布", type: "sodai", label: "粗大ごみ", note: "ひもで縛る。" },
 
-            // --- PDF資料リンク ---
-            { name: "別紙資料 gomi01", type: "pdf", label: "PDF資料", url: "gomi01.pdf", note: "ごみ分別ガイド（詳細1）" },
-            { name: "別紙資料 gomi02", type: "pdf", label: "PDF資料", url: "gomi02.pdf", note: "ごみ分別ガイド（詳細2）" },
-            { name: "別紙資料 gomi03", type: "pdf", label: "PDF資料", url: "gomi03.pdf", note: "ごみ分別ガイド（詳細3）" }
+            // --- ラ・ワ行 ---
+            { name: "ライター", type: "hazardous", label: "有害ごみ", note: "使い切り役場窓口へ。" },
+            { name: "レコード", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。" },
+            { name: "割り箸", type: "burnable", label: "可燃ごみ", note: "毎週月曜日。" },
+
+            // --- PDF資料 ---
+            { name: "別紙資料 gomi01", type: "pdf", label: "PDF資料", url: "gomi01.pdf", note: "詳細な50音別一覧表1" },
+            { name: "別紙資料 gomi02", type: "pdf", label: "PDF資料", url: "gomi02.pdf", note: "詳細な50音別一覧表2" },
+            { name: "別紙資料 gomi03", type: "pdf", label: "PDF資料", url: "gomi03.pdf", note: "詳細な50音別一覧表3" }
         ];
 
         const REAL_TODAY = new Date();
-        const monthSlider = document.getElementById('month-slider');
-        const monthTabsContainer = document.getElementById('month-tabs');
         const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
 
         function getIcons(type) {
@@ -312,6 +289,8 @@
             if (displayDate) displayDate.innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`;
             renderToday(getGarbageTypes(todayStr));
 
+            const monthSlider = document.getElementById('month-slider');
+            const monthTabsContainer = document.getElementById('month-tabs');
             monthSlider.innerHTML = '';
             monthTabsContainer.innerHTML = '';
             let tempDate = new Date(REAL_TODAY.getFullYear(), REAL_TODAY.getMonth(), 1);
@@ -370,9 +349,11 @@
             }).join('');
         }
 
-        function scrollToMonth(index) { monthSlider.scrollTo({ left: monthSlider.clientWidth * index, behavior: 'smooth' }); }
+        function scrollToMonth(index) {
+            const monthSlider = document.getElementById('month-slider');
+            monthSlider.scrollTo({ left: monthSlider.clientWidth * index, behavior: 'smooth' });
+        }
         function resetToToday() { scrollToMonth(0); }
-        monthSlider.addEventListener('scroll', () => updateActiveTab(Math.round(monthSlider.scrollLeft / monthSlider.clientWidth)), { passive: true });
 
         function updateActiveTab(index) {
             const tabs = document.querySelectorAll('.month-tab');
@@ -384,6 +365,11 @@
             });
         }
 
+        document.getElementById('month-slider').addEventListener('scroll', () => {
+            const monthSlider = document.getElementById('month-slider');
+            updateActiveTab(Math.round(monthSlider.scrollLeft / monthSlider.clientWidth));
+        }, { passive: true });
+
         const searchInput = document.getElementById('search-input'), searchResults = document.getElementById('search-results');
         if (searchInput && searchResults) {
             searchInput.addEventListener('input', (e) => {
@@ -394,7 +380,7 @@
                 searchResults.innerHTML = filtered.map(i => {
                     const cardContent = `
                         <div class="w-12 h-12 bg-${i.type} rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">${getIcons(i.type).replace('text-sm','text-xl')}</div>
-                        <div class="flex-1">
+                        <div class="flex-1 text-left">
                             <h3 class="font-black text-base">${i.name}</h3>
                             <span class="class-badge bg-${i.type}">${i.label}</span>
                             <p class="text-[11px] text-gray-500 mt-2 font-bold leading-tight">${i.note || ''}</p>
