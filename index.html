@@ -197,4 +197,195 @@
     </main>
 
     <footer class="pb-8 text-center opacity-40">
-        <p class="text-[10px]
+        <p class="text-[10px] font-black uppercase tracking-widest">Minamiaiki Digital Museum Project</p>
+    </footer>
+
+    <div style="text-align: center; margin-bottom: 40px;">
+      <a href="https://yoshi0213saku-spec.github.io/minami-gomiapuri/">
+        <img src="minami-gominavi.png" alt="南相木村ごみナビ" style="width: 200px; display: inline-block;">
+      </a>
+    </div>
+
+    <script>
+        const CONFIG = {
+            specialRules: {
+                "2026-05-09": { label: "粗大ごみ", type: "sodai" },
+                "2025-12-29": { label: "可燃ごみ", type: "burnable" },
+                "2025-12-30": { label: "可燃ごみ", type: "burnable" },
+                "2026-01-04": { label: "臨時収集", type: "burnable" },
+                "2026-12-29": { label: "可燃ごみ", type: "burnable" },
+                "2026-12-30": { label: "可燃ごみ", type: "burnable" },
+                "2027-01-04": { label: "臨時収集", type: "burnable" }
+            }
+        };
+
+        const DICTIONARY = [
+            { name: "生ごみ", type: "burnable", label: "可燃ごみ", bag: "指定の袋", note: "毎週月曜日。十分に水を切ってください。" },
+            { name: "ビデオテープ", type: "non-burnable", label: "不燃ごみ", bag: "透明な袋", note: "第1火曜日。そのまま袋へ。" },
+            { name: "乾電池", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "役場窓口へ直接お持ちください。" },
+            { name: "プラスチック製容器包装", type: "plastic", label: "プラスチック類", bag: "", note: "第2・4水曜日。きれいに洗って乾燥させて。" },
+            { name: "トレイ・パック", type: "plastic", label: "プラスチック類", bag: "", note: "第2・4水曜日。" },
+            { name: "新聞紙・チラシ", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "雑誌・本", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "ダンボール", type: "koshi", label: "古紙類", bag: "紐で十字に", note: "第1水曜日。" },
+            { name: "飲料缶", type: "can-bin", label: "缶・びん", bag: "袋なし", note: "第3水曜日。中を洗って出してください。" },
+            { name: "空きびん", type: "can-bin", label: "缶・びん", bag: "袋なし", note: "第3水曜日。色別に分けて出してください。" },
+            { name: "スプレー缶", type: "hazardous", label: "有害ごみ", bag: "役場窓口", note: "中身を出し切って役場窓口へ。" },
+            { name: "ライター", type: "hazardous", label: "有害ごみ", bag: "ガスを使い切って役場窓口へ。" },
+            { name: "蛍光管・電球", type: "hazardous", label: "有害ごみ", bag: "箱等に入れて役場窓口へ。" },
+            { name: "小型家電", type: "non-burnable", label: "不燃ごみ", note: "第1火曜日。30cm角を超えるものは粗大ごみへ。" },
+            { name: "タンス・机", type: "sodai", label: "粗大ごみ", note: "5月9日などの特定日に収集されます。" }
+        ];
+
+        const REAL_TODAY = new Date();
+        const monthSlider = document.getElementById('month-slider');
+        const monthTabsContainer = document.getElementById('month-tabs');
+        const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
+
+        function getIcons(type) {
+            switch(type) {
+                case 'burnable': return '<i class="fas fa-fire text-sm"></i>';
+                case 'non-burnable': return '<i class="fas fa-dumpster text-sm"></i>';
+                case 'plastic': return '<i class="fas fa-recycle text-sm"></i>';
+                case 'koshi': return '<i class="fas fa-book text-sm"></i>';
+                case 'can-bin': return '<i class="fas fa-wine-bottle text-sm"></i>';
+                case 'hazardous': return '<i class="fas fa-exclamation-triangle text-sm"></i>';
+                case 'sodai': return '<i class="fas fa-truck text-sm"></i>';
+                default: return '<i class="fas fa-calendar-times text-sm"></i>';
+            }
+        }
+
+        function getBagColor(type) {
+            switch(type) {
+                case 'burnable': return '#ff6b6b';
+                case 'non-burnable': return '#4d96ff';
+                case 'plastic': return '#ffd93d';
+                case 'koshi': return '#6bc11f';
+                case 'can-bin': return '#fd9644';
+                case 'hazardous': return '#a555ec';
+                case 'sodai': return '#4b6584';
+                default: return '#ccc';
+            }
+        }
+
+        function getGarbageTypes(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDay();
+            const d = date.getDate();
+            const nth = Math.ceil(d / 7);
+            
+            if (CONFIG.specialRules[dateStr]) return [CONFIG.specialRules[dateStr]];
+            
+            let results = [];
+            if (day === 1) results.push({ label: "可燃ごみ", type: "burnable", bag: "指定袋" });
+            if (day === 2 && nth === 1) results.push({ label: "不燃ごみ", type: "non-burnable", bag: "透明袋" });
+            if (day === 3 && nth === 1) results.push({ label: "古紙類", type: "koshi", bag: "紐で縛る" });
+            if (day === 3 && (nth === 2 || nth === 4)) results.push({ label: "プラ類", type: "plastic", bag: "" });
+            if (day === 3 && nth === 3) results.push({ label: "缶・びん", type: "can-bin", bag: "" });
+            
+            return results.length > 0 ? results : [{ label: "収集なし", type: "none" }];
+        }
+
+        function initApp() {
+            const todayStr = `${REAL_TODAY.getFullYear()}-${String(REAL_TODAY.getMonth()+1).padStart(2,'0')}-${String(REAL_TODAY.getDate()).padStart(2,'0')}`;
+            const displayDate = document.getElementById('today-display');
+            if (displayDate) displayDate.innerText = `${REAL_TODAY.getMonth()+1}/${REAL_TODAY.getDate()}（${dayNames[REAL_TODAY.getDay()]}）`;
+            renderToday(getGarbageTypes(todayStr));
+
+            monthSlider.innerHTML = '';
+            monthTabsContainer.innerHTML = '';
+            let tempDate = new Date(REAL_TODAY.getFullYear(), REAL_TODAY.getMonth(), 1);
+
+            for (let i = 0; i < 12; i++) {
+                const y = tempDate.getFullYear(), m = tempDate.getMonth();
+                const btn = document.createElement('button');
+                btn.className = `month-tab`;
+                btn.innerHTML = `<span class="year-indicator">${y}</span>${m + 1}月`;
+                btn.onclick = () => scrollToMonth(i);
+                monthTabsContainer.appendChild(btn);
+
+                const page = document.createElement('div');
+                page.className = 'month-page';
+                let html = `<div class="mb-5 px-1"><h2 class="text-gray-800 font-black text-lg">${y}年 ${m + 1}月</h2></div><div class="calendar-grid">`;
+                const lastDay = new Date(y, m + 1, 0).getDate();
+                for (let d = 1; d <= lastDay; d++) {
+                    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const types = getGarbageTypes(dateStr);
+                    const dayNum = new Date(y, m, d).getDay();
+                    const color = dayNum === 0 ? 'text-red-500' : (dayNum === 6 ? 'text-blue-500' : 'text-gray-400');
+                    html += `
+                        <div class="calendar-item ${dateStr === todayStr ? 'ring-4 ring-[#2d5a27]/20 border-[#2d5a27]' : ''}">
+                            <div class="font-black text-xs mb-3 ${color}">${m + 1}/${d}（${dayNames[dayNum]}）</div>
+                            <div class="space-y-2">
+                                ${types.map(t => `
+                                    <div class="flex items-center gap-1">
+                                        <div class="type-icon bg-${t.type} text-white">${getIcons(t.type)}</div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] font-black leading-tight">${t.label}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+                page.innerHTML = html + `</div>`;
+                monthSlider.appendChild(page);
+                tempDate.setMonth(tempDate.getMonth() + 1);
+            }
+            updateActiveTab(0);
+        }
+
+        function renderToday(types) {
+            const container = document.getElementById('today-content');
+            if (!container) return;
+            container.innerHTML = types.map(t => {
+                if (t.type === 'none') return `<i class="fas fa-bed text-4xl text-gray-200 mb-2"></i><span class="text-xl font-black text-gray-300">今日は収集なし</span>`;
+                return `
+                    <div class="flex flex-col items-center w-full">
+                        <div class="w-20 h-20 bg-${t.type} rounded-full flex items-center justify-center text-white text-3xl shadow-lg mb-2">
+                            ${getIcons(t.type).replace('text-sm','text-3xl')}
+                        </div>
+                        <span class="text-2xl font-black">${t.label}</span>
+                        ${t.bag ? `<div class="mt-2 flex items-center bg-gray-50 px-4 py-1 rounded-full text-sm font-bold text-gray-500 border border-gray-100">
+                            <span class="bag-indicator" style="background:${getBagColor(t.type)}"></span>${t.bag}で出してください
+                        </div>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        function scrollToMonth(index) { monthSlider.scrollTo({ left: monthSlider.clientWidth * index, behavior: 'smooth' }); }
+        function resetToToday() { scrollToMonth(0); }
+        monthSlider.addEventListener('scroll', () => updateActiveTab(Math.round(monthSlider.scrollLeft / monthSlider.clientWidth)), { passive: true });
+
+        function updateActiveTab(index) {
+            const tabs = document.querySelectorAll('.month-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else tab.classList.remove('active');
+            });
+        }
+
+        const searchInput = document.getElementById('search-input'), searchResults = document.getElementById('search-results');
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                if (val.length === 0) { searchResults.classList.add('hidden'); return; }
+                const filtered = DICTIONARY.filter(i => i.name.includes(val) || i.label.includes(val));
+                searchResults.classList.remove('hidden');
+                searchResults.innerHTML = filtered.map(i => `
+                    <div class="main-card p-4 flex items-center gap-4">
+                        <div class="w-14 h-14 bg-${i.type} rounded-2xl flex items-center justify-center text-white text-2xl">${getIcons(i.type).replace('text-sm','text-2xl')}</div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start"><h3 class="font-black text-lg">${i.name}</h3><span class="text-[10px] font-black bg-${i.type} px-2 py-0.5 rounded text-white">${i.label}</span></div>
+                            ${i.bag ? `<div class="mt-1 flex items-center text-xs font-bold text-gray-400"><span class="bag-indicator" style="background:${getBagColor(i.type)}"></span>${i.bag}</div>` : ''}
+                            <p class="text-[10px] text-gray-500 mt-1">${i.note || ''}</p>
+                        </div>
+                    </div>`).join('') || '<div class="text-center py-10 opacity-30 font-black">見つかりませんでした</div>';
+            });
+        }
+        window.onload = initApp;
+    </script>
+</body>
+</html>
